@@ -1,6 +1,6 @@
 # Pivotal::Tracker::Wrapper
 
-TODO: Write a gem description
+Pivotal Tracker Wrapper to Work with V5 endpoints, using VCR as request testing and ActiveModel for validations
 
 ## Installation
 
