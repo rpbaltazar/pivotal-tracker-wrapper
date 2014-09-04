@@ -129,18 +129,22 @@ describe PivotalTracker::Client do
     context "when passing valid username and password" do
       before do
         PivotalTracker::Client.name = nil
+        PivotalTracker::Client.token = nil
       end
       it 'gets the api_token from the pivotal tracker' do
         PivotalTracker::Client.token(USERNAME, PASSWORD)
         #token is only writable, but if there is a name
         #means that there was a token also sent by the API
         expect(PivotalTracker::Client.name).to eq NAME
+        #not raising an error also ensures that token has been filled
         expect(lambda { PivotalTracker::Client.connection } ).not_to raise_error
       end
     end
     context 'when passing wrong username and password' do
-      it 'throws an error message' do
-
+      it 'raises an error' do
+        expect(lambda { PivotalTracker::Client.token('asdasd', 'asdasdasd') }).to raise_error PivotalTracker::Client::AuthenticationError
+        expect(PivotalTracker::Client.name).to be_nil
+        expect(lambda { PivotalTracker::Client.connection } ).to raise_error PivotalTracker::Client::NoToken
       end
     end
     context 'when not passing any username nor password' do

@@ -3,6 +3,8 @@ require 'json'
 module PivotalTracker
   class Client
     class NoToken < StandardError; end
+    class AuthenticationError < StandardError; end
+    class NonParseableAnswer < StandardError; end
 
     class << self
       attr_writer :use_ssl, :token, :tracker_host
@@ -13,17 +15,20 @@ module PivotalTracker
       end
 
       def token(username, password, method='get')
-        # https://username:password@www.pivotaltracker.com/services/v5/me
-        response = RestClient.get "#{api_ssl_url(username, password)}/me"
         #TODO: add post method
         begin
+          # https://username:password@www.pivotaltracker.com/services/v5/me
+          response = RestClient.get "#{api_ssl_url(username, password)}/me"
           parsedBody = JSON.parse(response.body)
           @token = parsedBody['api_token']
           @name = parsedBody['name']
-        rescue Exception => e
-          p e.inspect
+        rescue RestClient::Forbidden
           @token = nil
           @name = nil
+          raise AuthenticationError
+        rescue JSON::ParserError => e
+          p "Unparseable JSON", e
+          raise NonParseableAnswer
         end
       end
 
