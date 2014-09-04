@@ -132,7 +132,9 @@ describe PivotalTracker::Client do
         PivotalTracker::Client.token = nil
       end
       it 'gets the api_token from the pivotal tracker' do
-        PivotalTracker::Client.token(USERNAME, PASSWORD)
+        VCR.use_cassette 'get-valid-api-token' do
+          PivotalTracker::Client.token(USERNAME, PASSWORD)
+        end
         #token is only writable, but if there is a name
         #means that there was a token also sent by the API
         expect(PivotalTracker::Client.name).to eq NAME
@@ -142,7 +144,9 @@ describe PivotalTracker::Client do
     end
     context 'when passing wrong username and password' do
       it 'raises an error' do
-        expect(lambda { PivotalTracker::Client.token('asdasd', 'asdasdasd') }).to raise_error PivotalTracker::Client::AuthenticationError
+        VCR.use_cassette 'get-invalid-api-token' do
+          expect(lambda { PivotalTracker::Client.token('asdasd', 'asdasdasd') }).to raise_error PivotalTracker::Client::AuthenticationError
+        end
         expect(PivotalTracker::Client.name).to be_nil
         expect(lambda { PivotalTracker::Client.connection } ).to raise_error PivotalTracker::Client::NoToken
       end

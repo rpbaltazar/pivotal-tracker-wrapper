@@ -32,3 +32,6 @@ tmp
 # intended to run in multiple environments; otherwise, check them in:
 .ruby-version
 .ruby-gemset
+
+#vcr fixtures are ignored because plain username and password are written in them
+spec/fixtures/vcr/*
