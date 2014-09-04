@@ -124,4 +124,28 @@ describe PivotalTracker::Client do
     end
   end
 
+  #TODO: Add VCR here to track the requests/answers
+  describe "#token" do
+    context "when passing valid username and password" do
+      before do
+        PivotalTracker::Client.name = nil
+      end
+      it 'gets the api_token from the pivotal tracker' do
+        PivotalTracker::Client.token(USERNAME, PASSWORD)
+        #token is only writable, but if there is a name
+        #means that there was a token also sent by the API
+        expect(PivotalTracker::Client.name).to eq NAME
+        expect(lambda { PivotalTracker::Client.connection } ).not_to raise_error
+      end
+    end
+    context 'when passing wrong username and password' do
+      it 'throws an error message' do
+
+      end
+    end
+    context 'when not passing any username nor password' do
+      #TODO
+    end
+  end
+
 end

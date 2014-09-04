@@ -1,9 +1,12 @@
+require 'json'
+
 module PivotalTracker
   class Client
     class NoToken < StandardError; end
 
     class << self
-      attr_writer :use_ssl, :token, :tracker_host, :name
+      attr_writer :use_ssl, :token, :tracker_host
+      attr_accessor :name
 
       def use_ssl
         @use_ssl || true
