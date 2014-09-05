@@ -21,7 +21,9 @@ describe PivotalTracker::Project do
 
   describe 'API calls' do
     before do
-      PivotalTracker::Client.token(USERNAME, PASSWORD)
+      VCR.use_cassette 'get-valid-api-token' do
+        PivotalTracker::Client.token(USERNAME, PASSWORD)
+      end
     end
 
     describe "#all" do
@@ -37,6 +39,46 @@ describe PivotalTracker::Project do
 
       it "should be a project instance" do
         expect(@projects.first).to be_a(PivotalTracker::Project)
+      end
+
+      it "it returns valid projects with ids" do
+        @projects.each do |proj|
+          expect(proj.valid?).to eq true
+          expect(proj.id).not_to be_nil
+        end
+      end
+    end
+
+    describe '#find(id)' do
+      before do
+        VCR.use_cassette 'get-projects' do
+          @projects = PivotalTracker::Project.all
+        end
+
+        @projectId = @projects.last.id
+      end
+      describe 'when getting a valid project id' do
+        before do
+          VCR.use_cassette "get-project-id-#{@projectId}" do
+            @project = PivotalTracker::Project.find @projectId
+          end
+        end
+
+        it 'returns a project instance' do
+          expect(@project).to be_a(PivotalTracker::Project)
+        end
+
+        it 'is a valid project' do
+          expect(@project.valid?).to eq true
+        end
+      end
+
+      describe 'when getting an invalid project id' do
+        it 'Throws an Authentication Error' do
+          VCR.use_cassette "get-project-id-invalid" do
+            expect(PivotalTracker::Project.find 1).to raise_error PivotalTracker::Client::AuthenticationError
+          end
+        end
       end
     end
   end

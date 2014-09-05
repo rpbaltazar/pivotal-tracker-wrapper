@@ -4,7 +4,6 @@ module PivotalTracker
   class Client
     class NoToken < StandardError; end
     class AuthenticationError < StandardError; end
-    class NoRouteDefined < StandardError; end
     class NonParseableAnswer < StandardError; end
 
     class << self
@@ -16,15 +15,21 @@ module PivotalTracker
       end
 
       def token(username, password, method='get')
-        @token = @name = nil
         #TODO: add post method
-        # https://username:password@www.pivotaltracker.com/services/v5/me
-
-        route = "#{api_ssl_url(username, password)}/me"
-        answer = request(route, method)
-
-        @token = answer['api_token']
-        @name = answer['name']
+        begin
+          # https://username:password@www.pivotaltracker.com/services/v5/me
+          response = RestClient.get "#{api_ssl_url(username, password)}/me"
+          parsedBody = JSON.parse(response.body)
+          @token = parsedBody['api_token']
+          @name = parsedBody['name']
+        rescue RestClient::Forbidden
+          @token = nil
+          @name = nil
+          raise AuthenticationError
+        rescue JSON::ParserError => e
+          p "Unparseable JSON", e
+          raise NonParseableAnswer
+        end
       end
 
       # this is your connection for the entire module
@@ -47,26 +52,6 @@ module PivotalTracker
       def api_ssl_url(user=nil, password=nil)
         user_password = (user && password) ? "#{user}:#{password}@" : ''
         "https://#{user_password}#{tracker_host}#{api_path}"
-      end
-
-      def request(route='', method='get', options = {})
-        raise NoRouteDefined if route.to_s.empty?
-
-        begin
-          case method
-          when 'get'
-            response = RestClient.get route
-          when 'post'
-            response = RestClient.post route
-          end
-
-          parsedBody = JSON.parse(response.body)
-          return parsedBody
-        rescue RestClient::Forbidden
-          raise AuthenticationError
-        rescue JSON::ParserError => e
-          raise NonParseableAnswer
-        end
       end
 
       protected

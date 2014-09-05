@@ -43,6 +43,17 @@ module PivotalTracker
       :kind
 
     def self.all
+      response = Client.connection['/projects'].get
+      begin
+        parsedBody = JSON.parse response
+        @projects = parsedBody.map do |p|
+          self.new p
+        end
+      rescue JSON::ParserError => e
+        p "Unparseable JSON", e
+        raise NonParseableAnswer
+      end
+
     end
 
     def initialize(attributes={})
