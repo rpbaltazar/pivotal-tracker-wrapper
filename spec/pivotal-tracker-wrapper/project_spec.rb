@@ -50,33 +50,60 @@ describe PivotalTracker::Project do
     end
 
     describe '#find(id)' do
-      before do
-        VCR.use_cassette 'get-projects' do
-          @projects = PivotalTracker::Project.all
-        end
-
-        @projectId = @projects.last.id
-      end
-      describe 'when getting a valid project id' do
+      describe 'projects loaded previously' do
         before do
-          VCR.use_cassette "get-project-id-#{@projectId}" do
-            @project = PivotalTracker::Project.find @projectId
+          VCR.use_cassette 'get-projects' do
+            @projects = PivotalTracker::Project.all
+          end
+        end
+        describe 'when getting a valid project id' do
+          before do
+            VCR.use_cassette "get-project-id-#{PROJECT_ID}" do
+              @project = PivotalTracker::Project.find PROJECT_ID
+            end
+          end
+
+          it 'does not make an HTTP request' do
+            expect(a_request(:get, "https://www.pivotaltracker.com/services/v5/projects/#{PROJECT_ID}")).not_to have_been_made
+          end
+
+          it 'returns a project instance' do
+            expect(@project).to be_a(PivotalTracker::Project)
+          end
+
+          it 'is a valid project' do
+            expect(@project.valid?).to eq true
+          end
+        end
+      end
+
+      describe 'projects not loaded previously' do
+        describe 'when getting a valid project id' do
+          before do
+            PivotalTracker::Project.reset
+            VCR.use_cassette "get-project-id-#{PROJECT_ID}" do
+              @project = PivotalTracker::Project.find PROJECT_ID
+            end
+          end
+
+          it 'returns a project instance' do
+            expect(@project).to be_a(PivotalTracker::Project)
+          end
+
+          it 'makes an HTTP request' do
+            expect(a_request(:get, "https://www.pivotaltracker.com/services/v5/projects/#{PROJECT_ID}")).to have_been_made
+          end
+
+          it 'is a valid project' do
+            expect(@project.valid?).to eq true
           end
         end
 
-        it 'returns a project instance' do
-          expect(@project).to be_a(PivotalTracker::Project)
-        end
-
-        it 'is a valid project' do
-          expect(@project.valid?).to eq true
-        end
-      end
-
-      describe 'when getting an invalid project id' do
-        it 'Throws an Authentication Error' do
-          VCR.use_cassette "get-project-id-invalid" do
-            expect(PivotalTracker::Project.find 1).to raise_error PivotalTracker::Client::AuthenticationError
+        describe 'when getting an invalid project id' do
+          it 'Throws an Authentication Error' do
+            VCR.use_cassette "get-project-id-invalid" do
+              expect(lambda { PivotalTracker::Project.find 1} ).to raise_error RestClient::Forbidden
+            end
           end
         end
       end

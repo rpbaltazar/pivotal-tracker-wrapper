@@ -1,11 +1,13 @@
 
 Bundler.require(:default, :runtime, :test)
+require "webmock/rspec"
 require_relative '../lib/pivotal-tracker-wrapper'
 
 
 USERNAME=ENV['PIVOTAL_USERNAME']
 PASSWORD=ENV['PIVOTAL_PASSWORD']
 NAME=ENV['PIVOTAL_NAME']
+PROJECT_ID=ENV['PIVOTAL_PROJECT_ID']
 
 RSpec.configure do |config|
   # Allow focus on a specific test if specified

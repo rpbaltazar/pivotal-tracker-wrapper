@@ -4,7 +4,6 @@ module PivotalTracker
   class Client
     class NoToken < StandardError; end
     class AuthenticationError < StandardError; end
-    class NonParseableAnswer < StandardError; end
 
     class << self
       attr_writer :use_ssl, :token, :tracker_host

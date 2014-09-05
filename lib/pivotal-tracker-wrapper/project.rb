@@ -53,7 +53,28 @@ module PivotalTracker
         p "Unparseable JSON", e
         raise NonParseableAnswer
       end
+    end
 
+    def self.find(id)
+      if @projects
+        proj = @projects.detect {|project| project.id == id.to_i}
+      end
+      if proj.nil?
+        begin
+          response = Client.connection["/projects/#{id}"].get
+          parsedBody = JSON.parse response
+          proj = self.new parsedBody
+        rescue JSON::ParserError => e
+          raise NonParseableAnswer
+        end
+      end
+
+      return proj
+    end
+
+    #NOTE: Quick fix for testing purpose
+    def self.reset
+      @projects = nil
     end
 
     def initialize(attributes={})
@@ -61,5 +82,6 @@ module PivotalTracker
         send("#{name}=", value)
       end
     end
+
   end
 end
