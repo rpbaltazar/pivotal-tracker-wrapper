@@ -23,6 +23,7 @@ TODO: Write usage instructions here
 ### Tests
 
 To run the tests for the first time you have to have internet connection and configured the following environment variables:
+
 1. PIVOTAL_NAME
 2. PIVOTAL_USERNAME
 3. PIVOTAL_PROJECT_ID
