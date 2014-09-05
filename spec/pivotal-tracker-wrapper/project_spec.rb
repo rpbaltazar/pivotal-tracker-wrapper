@@ -26,7 +26,7 @@ describe PivotalTracker::Project do
       end
     end
 
-    describe ".all" do
+    describe "#all" do
       before do
         VCR.use_cassette 'get-projects' do
           @projects = PivotalTracker::Project.all
