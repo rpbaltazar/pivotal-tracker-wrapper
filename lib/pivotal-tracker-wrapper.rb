@@ -4,6 +4,7 @@ require_relative 'pivotal-tracker-wrapper/version'
 
 require File.join(File.dirname(__FILE__), 'pivotal-tracker-wrapper', 'client')
 require File.join(File.dirname(__FILE__), 'pivotal-tracker-wrapper', 'project')
+require File.join(File.dirname(__FILE__), 'pivotal-tracker-wrapper', 'story')
 
 module PivotalTracker
 
