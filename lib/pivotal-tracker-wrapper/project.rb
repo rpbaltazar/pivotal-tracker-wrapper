@@ -83,5 +83,9 @@ module PivotalTracker
       end
     end
 
+    def stories
+      @stories ||= Proxy.new self, Story
+    end
+
   end
 end
