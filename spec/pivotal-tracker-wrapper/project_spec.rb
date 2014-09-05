@@ -21,9 +21,7 @@ describe PivotalTracker::Project do
 
   describe 'API calls' do
     before do
-      VCR.use_cassette 'get-valid-api-token' do
-        PivotalTracker::Client.token(USERNAME, PASSWORD)
-      end
+      PivotalTracker::Client.token(USERNAME, PASSWORD)
     end
 
     describe "#all" do
@@ -39,13 +37,6 @@ describe PivotalTracker::Project do
 
       it "should be a project instance" do
         expect(@projects.first).to be_a(PivotalTracker::Project)
-      end
-
-      it "should contain projects with names and ids" do
-        @projects.each do |proj|
-          expect(proj.valid?).to eq true
-          expect(proj.id).not_to be_nil
-        end
       end
     end
   end
