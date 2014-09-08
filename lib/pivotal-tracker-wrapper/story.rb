@@ -29,10 +29,27 @@ module PivotalTracker
     :url,
     :kind
 
+    def self.all(project, params)
+      response = Client.connection["/projects/#{project.id}/stories"].get
+      begin
+        parsedBody = JSON.parse response
+        @stories = parsedBody.map do |s|
+          self.new s
+        end
+      rescue JSON::ParserError => e
+        p "Unparseable JSON", e
+        raise NonParseableAnswer
+      end
+    end
+
     def initialize(attributes={})
       attributes.each do |name, value|
         send("#{name}=", value)
       end
+    end
+
+    def labels=(labels)
+      @label_ids = labels.map{|l| l["id"]}
     end
   end
 end

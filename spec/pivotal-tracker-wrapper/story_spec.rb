@@ -19,35 +19,40 @@ describe PivotalTracker::Story do
     end
   end
 
-  # describe 'API calls' do
-  #   before do
-  #     VCR.use_cassette 'get-valid-api-token' do
-  #       PivotalTracker::Client.token(USERNAME, PASSWORD)
-  #     end
-  #   end
-  #
-  #   describe "#all" do
-  #     before do
-  #       VCR.use_cassette 'get-projects' do
-  #         @projects = PivotalTracker::Project.all
-  #       end
-  #     end
-  #
-  #     it "should return an array of available projects" do
-  #       expect(@projects).to be_a(Array)
-  #     end
-  #
-  #     it "should be a project instance" do
-  #       expect(@projects.first).to be_a(PivotalTracker::Project)
-  #     end
-  #
-  #     it "it returns valid projects with ids" do
-  #       @projects.each do |proj|
-  #         expect(proj.valid?).to eq true
-  #         expect(proj.id).not_to be_nil
-  #       end
-  #     end
-  #   end
+  describe 'API calls' do
+    before do
+      VCR.use_cassette 'get-valid-api-token' do
+        PivotalTracker::Client.token(USERNAME, PASSWORD)
+      end
+    end
+
+    describe "#all" do
+      before do
+        VCR.use_cassette "get-project-id-#{PROJECT_ID}" do
+          @project = PivotalTracker::Project.find PROJECT_ID
+        end
+        VCR.use_cassette "get-all-stories-project-#{PROJECT_ID}" do
+          @stories = @project.stories.all
+        end
+      end
+
+      it "should return an array of available stories" do
+        expect(@stories).to be_a(Array)
+      end
+
+      it "should be a story instance" do
+        expect(@stories.first).to be_a(PivotalTracker::Story)
+      end
+
+      it "it returns valid projects with ids" do
+        @stories.each do |story|
+          expect(story.valid?).to eq true
+          expect(story.id).not_to be_nil
+          expect(story.project_id == PROJECT_ID.to_i).to eq true
+        end
+      end
+    end
+  end
   #
   #   describe '#find(id)' do
   #     describe 'projects loaded previously' do
